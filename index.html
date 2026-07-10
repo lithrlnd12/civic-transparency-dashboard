@@ -250,4 +250,229 @@
     <div class="module-head">
       <div class="module-title-row">
         <h2 class="module-title"><span class="module-icon">🏛️</span> Domestic Lobbying Disclosure (LDA)</h2>
-      
+        <span class="badge official">Official government data</span>
+      </div>
+      <div class="explainer">
+        <p><strong>What this is:</strong> Under the Lobbying Disclosure Act, firms and individuals lobbying Congress or federal agencies on behalf of a client must register and file quarterly reports on their activity, issues, and compensation.</p>
+        <p><strong>Why it matters:</strong> This is the primary public record of who is lobbying the federal government, for whom, and on what issues — separate from campaign contributions.</p>
+        <p><strong>How to read it:</strong> A "registration" is a new lobbying relationship being disclosed. High filing volume in a period reflects normal quarterly reporting cycles, not a spike in lobbying itself.</p>
+      </div>
+      <div class="meta-row">
+        <span>Last updated: <strong id="lda-updated">loading…</strong></span>
+        <span class="dot-sep"></span>
+        <a href="https://lda.senate.gov/system/public/" target="_blank" rel="noopener">View primary source (lda.senate.gov) →</a>
+      </div>
+    </div>
+    <div class="module-body" id="lda-body">
+      <div class="loading"><span class="spinner"></span> Loading LDA data…</div>
+    </div>
+  </section>
+
+  <!-- FEC MODULE -->
+  <section class="module" id="fec" style="--c:var(--fec)">
+    <div class="module-head">
+      <div class="module-title-row">
+        <h2 class="module-title"><span class="module-icon">💵</span> Campaign Finance / PAC Activity (FEC)</h2>
+        <span class="badge official">Official government data</span>
+      </div>
+      <div class="explainer">
+        <p><strong>What this is:</strong> Federal Election Commission records of political action committees (PACs), party committees, and Super PACs registered to raise and spend money in federal elections.</p>
+        <p><strong>Why it matters:</strong> This is the primary record of how many organized money operations exist around federal campaigns, and how active they are.</p>
+        <p><strong>How to read it:</strong> A "Super PAC" can raise and spend unlimited amounts on independent expenditures but cannot contribute directly to candidates. Counts below are activity counts (how many committees/reports exist), not dollar totals — see the note below.</p>
+      </div>
+      <div class="meta-row">
+        <span>Last updated: <strong id="fec-updated">loading…</strong></span>
+        <span class="dot-sep"></span>
+        <a href="https://www.fec.gov/data/browse-data/?tab=bulk-data" target="_blank" rel="noopener">View primary source (fec.gov) →</a>
+      </div>
+    </div>
+    <div class="module-body" id="fec-body">
+      <div class="loading"><span class="spinner"></span> Loading FEC data…</div>
+    </div>
+  </section>
+
+  <!-- ALPR MODULE -->
+  <section class="module" id="alpr" style="--c:var(--alpr)">
+    <div class="module-head">
+      <div class="module-title-row">
+        <h2 class="module-title"><span class="module-icon">📷</span> ALPR / "Flock" Camera Deployment</h2>
+        <span class="badge research">Open-source research — not official</span>
+      </div>
+      <div class="explainer">
+        <p><strong>What this is:</strong> A research-verified inventory of U.S. law enforcement agencies documented using Flock Safety automatic license-plate-reader (ALPR) cameras, compiled by EFF's Atlas of Surveillance project. Each entry is individually researched and cited to a news article, public record, or government document — not anonymous map tagging. A secondary, purely crowdsourced worldwide camera-tag count from OpenStreetMap is included below it for context.</p>
+        <p><strong>Why it matters:</strong> ALPR networks are expanding across the U.S. largely without centralized public reporting, and have drawn scrutiny for sharing local camera data with federal immigration enforcement without cities' authorization. This is the most rigorously sourced public accounting of that expansion available outside government itself.</p>
+        <p><strong>How to read it — important caveats:</strong> this is still <em>not</em> official government data — EFF is a privacy advocacy organization, and each entry reflects what their researchers found, not a mandatory disclosure. Coverage reflects research effort as much as reality, and the dataset is only as current as its last update (see below). Treat it as the best available public accounting, not a real-time or exhaustive one.</p>
+      </div>
+      <div class="meta-row">
+        <span>Last updated: <strong id="alpr-updated">loading…</strong></span>
+        <span class="dot-sep"></span>
+        <a href="https://www.atlasofsurveillance.org/search?vendor=Flock+Safety" target="_blank" rel="noopener">View primary source (Atlas of Surveillance) →</a>
+        <span class="dot-sep"></span>
+        <a href="https://www.atlasofsurveillance.org/methodology" target="_blank" rel="noopener">Methodology →</a>
+      </div>
+    </div>
+    <div class="module-body" id="alpr-body">
+      <div class="loading"><span class="spinner"></span> Loading ALPR data…</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p><strong>About this dashboard:</strong> Built as a neutral reference tool. Every figure links directly to its official or clearly-labeled source. No topic is included without a verifiable primary-source or clearly-provenanced dataset behind it — no narrative journalism, no "hot takes."</p>
+  <p>Data refreshes on a weekly cadence. If a module shows stale data, the "last updated" timestamp will say so.</p>
+  <p>Corrections: the source links in each module are the authoritative record, not this page — always verify against them.</p>
+</footer>
+
+<script>
+document.getElementById('navToggle').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+document.querySelectorAll('.navlinks a').forEach(a => a.addEventListener('click', () => {
+  document.getElementById('navLinks').classList.remove('open');
+}));
+
+async function loadModule(name, renderFn){
+  try{
+    const res = await fetch(`data/${name}.json?t=${Date.now()}`);
+    if(!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    renderFn(data);
+  }catch(e){
+    const body = document.getElementById(`${name}-body`);
+    if(body) body.innerHTML = `<div class="placeholder">Data temporarily unavailable. Please use the primary source link above.</div>`;
+  }
+}
+
+function fmtDate(iso){
+  try{
+    const d = new Date(iso);
+    return d.toLocaleString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'numeric', minute:'2-digit', timeZoneName:'short' });
+  }catch(e){ return iso; }
+}
+function fmtNum(n){ return Number(n).toLocaleString(); }
+
+function donutSVG(a, b, colorA, colorB){
+  const total = a + b;
+  const pctA = total ? (a/total)*100 : 0;
+  const r = 34, c = 2*Math.PI*r;
+  const offA = c * (1 - pctA/100);
+  return `
+  <svg width="96" height="96" viewBox="0 0 96 96" style="flex:none">
+    <circle cx="48" cy="48" r="${r}" fill="none" stroke="${colorB}" stroke-width="14"/>
+    <circle cx="48" cy="48" r="${r}" fill="none" stroke="${colorA}" stroke-width="14"
+      stroke-dasharray="${c}" stroke-dashoffset="${offA}" transform="rotate(-90 48 48)" stroke-linecap="round"/>
+    <text x="48" y="52" text-anchor="middle" font-size="16" fill="var(--text)" font-weight="700">${Math.round(pctA)}%</text>
+  </svg>`;
+}
+
+function renderFara(data){
+  document.getElementById('fara-updated').textContent = fmtDate(data.as_of);
+  document.getElementById('snap-fara').textContent = fmtNum(data.metrics[0].value);
+  const metricsHtml = data.metrics.map(m => `
+    <div class="metric-card">
+      <div class="metric-value">${fmtNum(m.value)}</div>
+      <div class="metric-label">${m.label}</div>
+    </div>`).join('');
+
+  const active = data.metrics[0].value, terminated = data.metrics[1].value;
+  const viz = `
+    <div class="viz-row">
+      ${donutSVG(active, terminated, 'var(--fara)', 'var(--border)')}
+      <div class="viz-legend">
+        <div class="li"><span class="swatch" style="background:var(--fara)"></span> Active — ${fmtNum(active)}</div>
+        <div class="li"><span class="swatch" style="background:var(--border)"></span> Terminated (all-time) — ${fmtNum(terminated)}</div>
+      </div>
+    </div>`;
+
+  const regRows = data.recent_registrations.map(r => `
+    <tr><td>${r.date}</td><td>${r.reg_number}</td><td>${r.name}</td><td>${r.location}</td></tr>`).join('');
+  const termRows = data.recent_terminations.map(r => `
+    <tr><td>${r.date}</td><td>${r.reg_number}</td><td>${r.name}</td><td>${r.location}</td></tr>`).join('');
+
+  document.getElementById('fara-body').innerHTML = `
+    <div class="metrics">${metricsHtml}</div>
+    ${viz}
+    <div class="subhead">Most recent registrations <span class="line"></span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Reg #</th><th>Name</th><th>Location</th></tr></thead>
+      <tbody>${regRows}</tbody>
+    </table></div>
+    <div class="subhead">Most recent terminations <span class="line"></span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Reg #</th><th>Name</th><th>Location</th></tr></thead>
+      <tbody>${termRows}</tbody>
+    </table></div>
+  `;
+}
+
+function renderLda(data){
+  document.getElementById('lda-updated').textContent = fmtDate(data.as_of);
+  document.getElementById('snap-lda').textContent = fmtNum(data.metrics[0].value);
+  const metricsHtml = data.metrics.map(m => `
+    <div class="metric-card">
+      <div class="metric-value">${fmtNum(m.value)}</div>
+      <div class="metric-label">${m.label}</div>
+    </div>`).join('');
+
+  const rows = data.recent_filings.map(f => `
+    <tr><td>${f.date}</td><td>${f.type}</td><td>${f.registrant}</td><td>${f.client}</td><td>${f.issue}</td></tr>`).join('');
+
+  document.getElementById('lda-body').innerHTML = `
+    <div class="metrics">${metricsHtml}</div>
+    <div class="subhead">Sample recent filings <span class="line"></span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Type</th><th>Registrant</th><th>Client</th><th>Issue</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    ${data.note ? `<div class="note-box">${data.note}</div>` : ''}
+  `;
+}
+
+function renderFec(data){
+  document.getElementById('fec-updated').textContent = fmtDate(data.as_of);
+  document.getElementById('snap-fec').textContent = fmtNum(data.metrics[0].value);
+  const metricsHtml = data.metrics.map(m => `
+    <div class="metric-card">
+      <div class="metric-value">${fmtNum(m.value)}</div>
+      <div class="metric-label">${m.label}</div>
+    </div>`).join('');
+
+  document.getElementById('fec-body').innerHTML = `
+    <div class="metrics">${metricsHtml}</div>
+    ${data.note ? `<div class="note-box">${data.note}</div>` : ''}
+  `;
+}
+
+function renderAlpr(data){
+  document.getElementById('alpr-updated').textContent = fmtDate(data.as_of) + (data.data_vintage ? ` (dataset: ${data.data_vintage.replace('Atlas of Surveillance dataset last updated ', '')})` : '');
+  document.getElementById('snap-alpr').textContent = fmtNum(data.metrics[0].value);
+  const metricsHtml = data.metrics.map(m => `
+    <div class="metric-card">
+      <div class="metric-value">${fmtNum(m.value)}</div>
+      <div class="metric-label">${m.label}</div>
+    </div>`).join('');
+
+  const entryRows = (data.example_entries || []).map(e => `
+    <tr><td>${e.agency}</td><td>${e.location}</td><td>${e.detail}</td><td>${e.source_type}</td></tr>`).join('');
+
+  document.getElementById('alpr-body').innerHTML = `
+    <div class="metrics">${metricsHtml}</div>
+    ${entryRows ? `
+    <div class="subhead">Example documented entries <span class="line"></span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Agency</th><th>Location</th><th>Detail</th><th>Sourced via</th></tr></thead>
+      <tbody>${entryRows}</tbody>
+    </table></div>` : ''}
+    ${data.note ? `<div class="note-box">${data.note}</div>` : ''}
+  `;
+}
+
+loadModule('fara', renderFara);
+loadModule('lda', renderLda);
+loadModule('fec', renderFec);
+loadModule('alpr', renderAlpr);
+</script>
+
+</body>
+</html>
