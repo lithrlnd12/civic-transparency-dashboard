@@ -1,4 +1,4 @@
-import { getSql, hasDatabase } from './_db.js';
+import { ensureSchema, getSql, hasDatabase } from './_db.js';
 
 const allowedModules = new Set(['fara', 'lda', 'fec', 'alpr']);
 
@@ -23,6 +23,7 @@ export default async function handler(request, response) {
   }
 
   try {
+    await ensureSchema();
     const sql = getSql();
     const pattern = `%${query.toLowerCase()}%`;
     const rows = moduleName

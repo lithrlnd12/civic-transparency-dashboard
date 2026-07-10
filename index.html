@@ -78,6 +78,7 @@
   .banner .icon{ flex:none; font-size:1.1rem; line-height:1.3; }
   .banner strong{ color:var(--text); }
   .search-shell{margin-top:22px;background:linear-gradient(135deg,rgba(91,157,255,.12),rgba(201,121,214,.08));border:1px solid #34405a;border-radius:18px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,.22)}
+  .live-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:13px;font-size:.77rem;color:var(--text-dim)}.status-dot{width:8px;height:8px;border-radius:50%;background:var(--text-faint);box-shadow:0 0 0 4px rgba(107,115,134,.12)}.status-dot.live{background:#45c77b;box-shadow:0 0 0 4px rgba(69,199,123,.13)}.status-dot.waiting{background:#e0a94e;box-shadow:0 0 0 4px rgba(224,169,78,.13)}.status-count{color:var(--text);font-weight:700}
   .search-label{display:block;font-weight:750;font-size:.92rem;margin-bottom:8px}.search-row{display:flex;gap:9px}.search-input{width:100%;background:#090b10;border:1px solid #374156;color:var(--text);border-radius:11px;padding:14px 15px;font-size:1rem;outline:none}.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,157,255,.14)}
   .search-button,.filter-chip{border:0;border-radius:10px;padding:0 18px;background:var(--accent);color:#061225;font-weight:750;cursor:pointer}.search-hints{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.hint{border:1px solid var(--border);background:rgba(18,21,28,.8);color:var(--text-dim);padding:6px 10px;border-radius:999px;font-size:.75rem;cursor:pointer}.hint:hover{color:var(--text);border-color:#48536a}
   .search-results{display:none;margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px}.search-results.open{display:block}.result-summary{color:var(--text-dim);font-size:.85rem;margin-bottom:10px}.result-list{display:grid;gap:8px}.result{width:100%;text-align:left;background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--c,var(--accent));border-radius:10px;padding:12px 14px;color:var(--text);cursor:pointer}.result:hover{background:var(--panel-2)}.result-type{font-size:.67rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint)}.result-title{font-weight:700;margin:2px 0}.result-detail{font-size:.82rem;color:var(--text-dim)}
@@ -207,6 +208,7 @@
     <span><strong>This is not advocacy.</strong> Every number here links back to its original source so you can verify it yourself. No commentary, no framing toward a conclusion — just what's publicly disclosed and how to read it.</span>
   </div>
   <div class="search-shell" role="search">
+    <div class="live-status" id="liveStatus"><span class="status-dot" id="statusDot"></span><span id="statusText">Checking live database…</span></div>
     <label class="search-label" for="globalSearch">Search the public records shown on this site</label>
     <div class="search-row"><input id="globalSearch" class="search-input" type="search" placeholder="Try a company, country, issue, agency, location, or registration number" autocomplete="off"><button id="searchButton" class="search-button">Search</button></div>
     <div class="search-hints"><button class="hint" data-query="Washington">Washington, DC</button><button class="hint" data-query="Defense">Defense</button><button class="hint" data-query="Flock Safety">Flock Safety</button><button class="hint" data-query="registration">Registrations</button></div>
@@ -347,6 +349,23 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const appState={modules:{},records:[],filter:'all',map:null};
+async function loadLiveStatus(){
+  const dot=document.getElementById('statusDot'),text=document.getElementById('statusText');
+  try{
+    const response=await fetch('/api/status');
+    const status=await response.json();
+    if(status.database==='connected'&&status.total_records>0){
+      dot.className='status-dot live';
+      text.innerHTML=`Live database · <span class="status-count">${fmtNum(status.total_records)} searchable records</span>`;
+    }else if(status.database==='connected'){
+      dot.className='status-dot waiting';
+      text.textContent='Database connected · waiting for first data refresh';
+    }else{
+      dot.className='status-dot waiting';
+      text.textContent='Published snapshot · live database not connected';
+    }
+  }catch(error){dot.className='status-dot waiting';text.textContent='Published snapshot · live status unavailable';}
+}
 document.getElementById('navToggle').addEventListener('click', () => {
   document.getElementById('navLinks').classList.toggle('open');
 });
@@ -562,6 +581,7 @@ loadModule('fara', renderFara);
 loadModule('lda', renderLda);
 loadModule('fec', renderFec);
 loadModule('alpr', renderAlpr);
+loadLiveStatus();
 </script>
 
 </body>
