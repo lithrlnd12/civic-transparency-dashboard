@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Civic Transparency Dashboard</title>
 <meta name="description" content="Where money and monitoring are — sourced from primary government disclosures, explained in plain language.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>◉</text></svg>">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynhQuRZIAByTdVn/7VxQ1N7lYQ7o=" crossorigin="">
 <style>
   :root{
     --bg:#0b0d12; --panel:#12151c; --panel-2:#181c25; --border:#242a36; --border-soft:#1c212b;
@@ -75,6 +77,15 @@
   }
   .banner .icon{ flex:none; font-size:1.1rem; line-height:1.3; }
   .banner strong{ color:var(--text); }
+  .search-shell{margin-top:22px;background:linear-gradient(135deg,rgba(91,157,255,.12),rgba(201,121,214,.08));border:1px solid #34405a;border-radius:18px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,.22)}
+  .search-label{display:block;font-weight:750;font-size:.92rem;margin-bottom:8px}.search-row{display:flex;gap:9px}.search-input{width:100%;background:#090b10;border:1px solid #374156;color:var(--text);border-radius:11px;padding:14px 15px;font-size:1rem;outline:none}.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(91,157,255,.14)}
+  .search-button,.filter-chip{border:0;border-radius:10px;padding:0 18px;background:var(--accent);color:#061225;font-weight:750;cursor:pointer}.search-hints{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.hint{border:1px solid var(--border);background:rgba(18,21,28,.8);color:var(--text-dim);padding:6px 10px;border-radius:999px;font-size:.75rem;cursor:pointer}.hint:hover{color:var(--text);border-color:#48536a}
+  .search-results{display:none;margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px}.search-results.open{display:block}.result-summary{color:var(--text-dim);font-size:.85rem;margin-bottom:10px}.result-list{display:grid;gap:8px}.result{width:100%;text-align:left;background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--c,var(--accent));border-radius:10px;padding:12px 14px;color:var(--text);cursor:pointer}.result:hover{background:var(--panel-2)}.result-type{font-size:.67rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint)}.result-title{font-weight:700;margin:2px 0}.result-detail{font-size:.82rem;color:var(--text-dim)}
+  .explore-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 8px;flex-wrap:wrap}.explore-copy{color:var(--text-dim);font-size:.86rem}.module-filters{display:flex;gap:6px;flex-wrap:wrap}.filter-chip{background:var(--panel-2);color:var(--text-dim);border:1px solid var(--border);padding:7px 11px;font-size:.76rem}.filter-chip.active{color:var(--text);border-color:var(--accent);background:rgba(91,157,255,.12)}
+  .record-row{cursor:pointer}.record-row:focus{outline:2px solid var(--accent);outline-offset:-2px}.drill{color:var(--accent);font-weight:650;font-size:.75rem;white-space:nowrap}.coverage-notice{background:rgba(224,169,78,.08);border:1px solid rgba(224,169,78,.25);border-radius:10px;padding:11px 13px;color:#d9c295;font-size:.8rem;margin-bottom:16px}
+  #alpr-map{height:390px;border-radius:12px;border:1px solid var(--border);overflow:hidden;margin:10px 0 18px;background:#0e1219}.map-legend{font-size:.78rem;color:var(--text-dim);margin-bottom:8px}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#171b24;color:#eef0f3}.leaflet-container a{color:#357bd6}
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:100;display:none}.drawer-backdrop.open{display:block}.drawer{position:absolute;right:0;top:0;height:100%;width:min(540px,100%);background:#10131a;border-left:1px solid var(--border);padding:24px;overflow:auto;box-shadow:-20px 0 60px rgba(0,0,0,.45)}.drawer-close{float:right;background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 10px;cursor:pointer}.drawer-kicker{text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-size:.72rem;font-weight:750}.drawer h2{font-size:1.45rem;line-height:1.2;margin:8px 0 14px}.detail-grid{display:grid;grid-template-columns:120px 1fr;gap:8px 12px;font-size:.87rem;margin:18px 0}.detail-grid dt{color:var(--text-faint)}.detail-grid dd{margin:0;overflow-wrap:anywhere}.plain-note{background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:13px;color:var(--text-dim);font-size:.86rem}.empty-results{color:var(--text-dim);padding:12px 0}
+  @media(max-width:600px){.search-row{flex-direction:column}.search-button{padding:12px}.detail-grid{grid-template-columns:1fr}.detail-grid dd{margin-bottom:8px}#alpr-map{height:310px}}
 
   /* ---- SNAPSHOT STRIP ---- */
   .snapshot{
@@ -195,6 +206,12 @@
     <span class="icon">ⓘ</span>
     <span><strong>This is not advocacy.</strong> Every number here links back to its original source so you can verify it yourself. No commentary, no framing toward a conclusion — just what's publicly disclosed and how to read it.</span>
   </div>
+  <div class="search-shell" role="search">
+    <label class="search-label" for="globalSearch">Search the public records shown on this site</label>
+    <div class="search-row"><input id="globalSearch" class="search-input" type="search" placeholder="Try a company, country, issue, agency, location, or registration number" autocomplete="off"><button id="searchButton" class="search-button">Search</button></div>
+    <div class="search-hints"><button class="hint" data-query="Washington">Washington, DC</button><button class="hint" data-query="Defense">Defense</button><button class="hint" data-query="Flock Safety">Flock Safety</button><button class="hint" data-query="registration">Registrations</button></div>
+    <div class="search-results" id="searchResults" aria-live="polite"></div>
+  </div>
 </header>
 
 <div class="snapshot" id="snapshot">
@@ -221,6 +238,7 @@
 </div>
 
 <main>
+  <div class="explore-bar"><div class="explore-copy"><strong>Explore all records.</strong> Search above or narrow the page by topic.</div><div class="module-filters" id="moduleFilters"><button class="filter-chip active" data-module="all">All topics</button><button class="filter-chip" data-module="fara">Foreign</button><button class="filter-chip" data-module="lda">Domestic</button><button class="filter-chip" data-module="fec">Campaigns</button><button class="filter-chip" data-module="alpr">ALPR</button></div></div>
 
   <!-- FARA MODULE -->
   <section class="module" id="fara" style="--c:var(--fara)">
@@ -318,13 +336,17 @@
 
 </main>
 
+<div class="drawer-backdrop" id="recordDrawer" aria-hidden="true"><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle"><button class="drawer-close" id="drawerClose" aria-label="Close details">Close</button><div id="drawerContent"></div></aside></div>
+
 <footer>
   <p><strong>About this dashboard:</strong> Built as a neutral reference tool. Every figure links directly to its official or clearly-labeled source. No topic is included without a verifiable primary-source or clearly-provenanced dataset behind it — no narrative journalism, no "hot takes."</p>
   <p>Data refreshes on a weekly cadence. If a module shows stale data, the "last updated" timestamp will say so.</p>
   <p>Corrections: the source links in each module are the authoritative record, not this page — always verify against them.</p>
 </footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
+const appState={modules:{},records:[],filter:'all',map:null};
 document.getElementById('navToggle').addEventListener('click', () => {
   document.getElementById('navLinks').classList.toggle('open');
 });
@@ -337,7 +359,9 @@ async function loadModule(name, renderFn){
     const res = await fetch(`data/${name}.json?t=${Date.now()}`);
     if(!res.ok) throw new Error('fetch failed');
     const data = await res.json();
+    appState.modules[name]=data;
     renderFn(data);
+    rebuildSearchIndex();
   }catch(e){
     const body = document.getElementById(`${name}-body`);
     if(body) body.innerHTML = `<div class="placeholder">Data temporarily unavailable. Please use the primary source link above.</div>`;
@@ -351,6 +375,31 @@ function fmtDate(iso){
   }catch(e){ return iso; }
 }
 function fmtNum(n){ return Number(n).toLocaleString(); }
+function esc(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function record(module,title,detail,fields,source){return{module,title,detail,fields,source,search:[title,detail,...Object.values(fields||{})].join(' ').toLowerCase()};}
+function rebuildSearchIndex(){
+  const out=[];
+  const f=appState.modules.fara;if(f){(f.recent_registrations||[]).forEach(x=>out.push(record('fara',x.name,'Foreign-agent registration',{'Date':x.date,'Registration number':x.reg_number,'Location':x.location,'Status':'Active'},f.source_url)));(f.recent_terminations||[]).forEach(x=>out.push(record('fara',x.name,'Terminated foreign-agent registration',{'Date':x.date,'Registration number':x.reg_number,'Location':x.location,'Status':'Terminated'},f.source_url)));}
+  const l=appState.modules.lda;if(l)(l.recent_filings||[]).forEach(x=>out.push(record('lda',x.client,`${x.registrant} · ${x.issue}`,{'Date':x.date,'Filing type':x.type,'Registrant':x.registrant,'Client':x.client,'Issue':x.issue},l.source_url)));
+  const c=appState.modules.fec;if(c)(c.metrics||[]).forEach(x=>out.push(record('fec',x.label,`${fmtNum(x.value)} reported`,{'Metric':x.label,'Value':fmtNum(x.value),'Cycle':'2026'},c.source_url)));
+  const a=appState.modules.alpr;if(a)(a.example_entries||[]).forEach(x=>out.push(record('alpr',x.agency,x.detail,{'Jurisdiction':x.location,'Evidence type':x.source_type,'Scope':'Agency-level location, not an exact camera coordinate'},a.source_url)));
+  appState.records=out;
+}
+const moduleNames={fara:'Foreign lobbying',lda:'Domestic lobbying',fec:'Campaign finance',alpr:'ALPR surveillance'};
+const moduleColors={fara:'var(--fara)',lda:'var(--lda)',fec:'var(--fec)',alpr:'var(--alpr)'};
+function runSearch(raw){
+  const q=raw.trim().toLowerCase(),host=document.getElementById('searchResults');
+  if(!q){host.classList.remove('open');host.innerHTML='';return;}
+  const terms=q.split(/\s+/);const hits=appState.records.filter(r=>(appState.filter==='all'||r.module===appState.filter)&&terms.every(t=>r.search.includes(t)));
+  host.classList.add('open');host.innerHTML=`<div class="result-summary">${hits.length} matching record${hits.length===1?'':'s'} in the currently published dataset</div><div class="result-list">${hits.slice(0,30).map((r,i)=>`<button class="result" data-result="${appState.records.indexOf(r)}" style="--c:${moduleColors[r.module]}"><div class="result-type">${moduleNames[r.module]}</div><div class="result-title">${esc(r.title)}</div><div class="result-detail">${esc(r.detail)}</div></button>`).join('')||'<div class="empty-results">No matches in the records currently published here. Broader source ingestion is the next data expansion.</div>'}</div>`;
+  host.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>openRecord(appState.records[Number(b.dataset.result)]));
+}
+function openRecord(r){
+  const fields=Object.entries(r.fields||{}).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
+  document.getElementById('drawerContent').innerHTML=`<div class="drawer-kicker">${moduleNames[r.module]}</div><h2 id="drawerTitle">${esc(r.title)}</h2><p>${esc(r.detail)}</p><dl class="detail-grid">${fields}</dl><div class="plain-note"><strong>How to use this:</strong> This panel summarizes the published record in plain language. Follow the source to inspect the authoritative filing or evidence.</div>${r.source?`<p><a href="${esc(r.source)}" target="_blank" rel="noopener">Open authoritative source →</a></p>`:''}`;
+  const drawer=document.getElementById('recordDrawer');drawer.classList.add('open');drawer.setAttribute('aria-hidden','false');document.getElementById('drawerClose').focus();
+}
+function wireRows(){document.querySelectorAll('tbody tr').forEach((tr,i)=>{if(tr.dataset.wired)return;tr.dataset.wired='1';tr.classList.add('record-row');tr.tabIndex=0;const cells=[...tr.cells].map(c=>c.textContent.trim());const match=appState.records.find(r=>cells.some(c=>c&&r.search.includes(c.toLowerCase())));if(match){tr.title='Open record details';tr.onclick=()=>openRecord(match);tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openRecord(match);}}}});}
 
 function donutSVG(a, b, colorA, colorB){
   const total = a + b;
@@ -391,6 +440,7 @@ function renderFara(data){
     <tr><td>${r.date}</td><td>${r.reg_number}</td><td>${r.name}</td><td>${r.location}</td></tr>`).join('');
 
   document.getElementById('fara-body').innerHTML = `
+    <div class="coverage-notice">Search and drill-down currently cover the records published in this dashboard. Full DOJ filing ingestion will expand this beyond the latest registrations shown here.</div>
     <div class="metrics">${metricsHtml}</div>
     ${viz}
     <div class="subhead">Most recent registrations <span class="line"></span></div>
@@ -404,6 +454,7 @@ function renderFara(data){
       <tbody>${termRows}</tbody>
     </table></div>
   `;
+  wireRows();
 }
 
 function renderLda(data){
@@ -419,6 +470,7 @@ function renderLda(data){
     <tr><td>${f.date}</td><td>${f.type}</td><td>${f.registrant}</td><td>${f.client}</td><td>${f.issue}</td></tr>`).join('');
 
   document.getElementById('lda-body').innerHTML = `
+    <div class="coverage-notice">This first interactive release searches the filings currently published here. The structure is ready for full quarterly LDA imports.</div>
     <div class="metrics">${metricsHtml}</div>
     <div class="subhead">Sample recent filings <span class="line"></span></div>
     <div class="table-wrap"><table>
@@ -427,6 +479,7 @@ function renderLda(data){
     </table></div>
     ${data.note ? `<div class="note-box">${data.note}</div>` : ''}
   `;
+  wireRows();
 }
 
 function renderFec(data){
@@ -439,6 +492,7 @@ function renderFec(data){
     </div>`).join('');
 
   document.getElementById('fec-body').innerHTML = `
+    <div class="coverage-notice">Current FEC coverage is aggregate. Candidate, committee, donor, receipt, and expenditure drill-down will appear as transaction-level records are ingested.</div>
     <div class="metrics">${metricsHtml}</div>
     ${data.note ? `<div class="note-box">${data.note}</div>` : ''}
   `;
@@ -457,7 +511,9 @@ function renderAlpr(data){
     <tr><td>${e.agency}</td><td>${e.location}</td><td>${e.detail}</td><td>${e.source_type}</td></tr>`).join('');
 
   document.getElementById('alpr-body').innerHTML = `
+    <div class="coverage-notice">Map markers represent agency jurisdictions from the published examples, not exact camera locations. The documented nationwide count is broader than the records currently available to map here.</div>
     <div class="metrics">${metricsHtml}</div>
+    <div class="subhead">Documented agency map <span class="line"></span></div><div class="map-legend">Select a marker to inspect the agency-level evidence. Exact camera coordinates are intentionally not inferred.</div><div id="alpr-map" aria-label="Map of example documented ALPR agencies"></div>
     ${entryRows ? `
     <div class="subhead">Example documented entries <span class="line"></span></div>
     <div class="table-wrap"><table>
@@ -466,7 +522,25 @@ function renderAlpr(data){
     </table></div>` : ''}
     ${data.note ? `<div class="note-box">${data.note}</div>` : ''}
   `;
+  wireRows();renderAlprMap(data);
 }
+
+function renderAlprMap(data){
+  if(typeof L==='undefined')return;
+  const centroids={'Birmingham, AL':[33.5186,-86.8104],'Andalusia, AL':[31.3085,-86.4833],'Anniston, AL':[33.6598,-85.8316]};
+  appState.map=L.map('alpr-map',{scrollWheelZoom:false}).setView([37.8,-96],4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; OpenStreetMap contributors'}).addTo(appState.map);
+  (data.example_entries||[]).forEach(e=>{const p=centroids[e.location];if(!p)return;const r=appState.records.find(x=>x.module==='alpr'&&x.title===e.agency);L.circleMarker(p,{radius:8,color:'#c979d6',fillColor:'#c979d6',fillOpacity:.72,weight:2}).addTo(appState.map).bindPopup(`<strong>${esc(e.agency)}</strong><br>${esc(e.location)}<br><small>Agency jurisdiction centroid</small>`).on('click',()=>{if(r)setTimeout(()=>openRecord(r),250);});});
+}
+
+document.getElementById('searchButton').onclick=()=>runSearch(document.getElementById('globalSearch').value);
+document.getElementById('globalSearch').addEventListener('input',e=>runSearch(e.target.value));
+document.getElementById('globalSearch').addEventListener('keydown',e=>{if(e.key==='Escape'){e.target.value='';runSearch('');}});
+document.querySelectorAll('.hint').forEach(b=>b.onclick=()=>{document.getElementById('globalSearch').value=b.dataset.query;runSearch(b.dataset.query);});
+document.querySelectorAll('.filter-chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter-chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');appState.filter=b.dataset.module;document.querySelectorAll('main .module').forEach(s=>s.hidden=appState.filter!=='all'&&s.id!==appState.filter);runSearch(document.getElementById('globalSearch').value);});
+document.getElementById('drawerClose').onclick=()=>{const d=document.getElementById('recordDrawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');};
+document.getElementById('recordDrawer').addEventListener('click',e=>{if(e.target.id==='recordDrawer')document.getElementById('drawerClose').click();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('recordDrawer').classList.contains('open'))document.getElementById('drawerClose').click();});
 
 loadModule('fara', renderFara);
 loadModule('lda', renderLda);
