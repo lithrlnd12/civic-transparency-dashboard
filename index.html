@@ -387,12 +387,28 @@ function rebuildSearchIndex(){
 }
 const moduleNames={fara:'Foreign lobbying',lda:'Domestic lobbying',fec:'Campaign finance',alpr:'ALPR surveillance'};
 const moduleColors={fara:'var(--fara)',lda:'var(--lda)',fec:'var(--fec)',alpr:'var(--alpr)'};
-function runSearch(raw){
+function displaySearchResults(host,hits,label){
+  host.classList.add('open');host.innerHTML=`<div class="result-summary">${hits.length} matching record${hits.length===1?'':'s'} · ${label}</div><div class="result-list">${hits.slice(0,30).map(r=>`<button class="result" data-record-id="${esc(r.id||'')}" style="--c:${moduleColors[r.module]}"><div class="result-type">${moduleNames[r.module]}</div><div class="result-title">${esc(r.title)}</div><div class="result-detail">${esc(r.detail)}</div></button>`).join('')||'<div class="empty-results">No matches found. Try a broader term or another topic.</div>'}</div>`;
+  host.querySelectorAll('[data-record-id]').forEach((button,index)=>button.onclick=()=>openRecord(hits[index]));
+}
+async function runSearch(raw){
   const q=raw.trim().toLowerCase(),host=document.getElementById('searchResults');
   if(!q){host.classList.remove('open');host.innerHTML='';return;}
   const terms=q.split(/\s+/);const hits=appState.records.filter(r=>(appState.filter==='all'||r.module===appState.filter)&&terms.every(t=>r.search.includes(t)));
-  host.classList.add('open');host.innerHTML=`<div class="result-summary">${hits.length} matching record${hits.length===1?'':'s'} in the currently published dataset</div><div class="result-list">${hits.slice(0,30).map((r,i)=>`<button class="result" data-result="${appState.records.indexOf(r)}" style="--c:${moduleColors[r.module]}"><div class="result-type">${moduleNames[r.module]}</div><div class="result-title">${esc(r.title)}</div><div class="result-detail">${esc(r.detail)}</div></button>`).join('')||'<div class="empty-results">No matches in the records currently published here. Broader source ingestion is the next data expansion.</div>'}</div>`;
-  host.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>openRecord(appState.records[Number(b.dataset.result)]));
+  displaySearchResults(host,hits,'published snapshot');
+  if(q.length<2)return;
+  try{
+    const params=new URLSearchParams({q,module:appState.filter,limit:'30'});
+    const response=await fetch(`/api/search?${params}`);
+    if(!response.ok)return;
+    const payload=await response.json();
+    const live=(payload.results||[]).map(x=>({
+      id:x.id,module:x.module,title:x.title,detail:x.summary||x.record_type,
+      fields:{...(x.fields||{}),'Date':x.occurred_on||'Not reported','Location':x.location||'Not reported','Record type':x.record_type,'Provenance':x.provenance},
+      source:x.source_url,search:''
+    }));
+    displaySearchResults(host,live,'live database');
+  }catch(error){console.info('Live search unavailable; using published snapshot.');}
 }
 function openRecord(r){
   const fields=Object.entries(r.fields||{}).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
