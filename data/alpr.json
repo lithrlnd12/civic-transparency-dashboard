@@ -1,0 +1,20 @@
+{
+  "module": "alpr",
+  "as_of": "2026-07-10T19:45:00Z",
+  "provenance": "research",
+  "provenance_label": "Open-source research (OSINT) — individually sourced and cross-checked, not official government data",
+  "source_name": "Atlas of Surveillance (Electronic Frontier Foundation + Reynolds School of Journalism, UNR)",
+  "source_url": "https://www.atlasofsurveillance.org/search?vendor=Flock+Safety",
+  "data_vintage": "Atlas of Surveillance dataset last updated 2025-12-04",
+  "metrics": [
+    { "label": "U.S. law enforcement agencies documented using Flock Safety ALPR", "value": 2707 },
+    { "label": "ALPR camera nodes tagged worldwide (OpenStreetMap, secondary/crowdsourced)", "value": 122920 }
+  ],
+  "example_entries": [
+    { "agency": "Birmingham Police Department", "location": "Birmingham, AL", "detail": "Began installing Flock Safety ALPRs in 2018, expanded in 2020.", "source_type": "News articles" },
+    { "agency": "Jefferson County Sheriff's Office", "location": "Birmingham, AL", "detail": "Operates Flock Safety automated license plate readers.", "source_type": "News articles" },
+    { "agency": "Covington County Sheriff's Office", "location": "Andalusia, AL", "detail": "Operates three Flock Safety ALPRs as of September 2025.", "source_type": "Public records request" },
+    { "agency": "Calhoun County Sheriff's Office", "location": "Anniston, AL", "detail": "Announced installation of 10 Flock Safety ALPRs, January 2023.", "source_type": "News article" }
+  ],
+  "note": "The headline count (2,707 agencies) comes from EFF's Atlas of Surveillance, a research project where trained volunteers and journalism students document each installation individually with a citation (news article, public record, or government document), reviewed by multiple people before publication. That's a meaningfully higher bar than anonymous map tagging, but it's still not an official government census — it reflects what EFF's team has documented as of their last data pull (Dec 4, 2025), not real-time reality. The OpenStreetMap figure below it is a separate, purely crowdsourced worldwide count included for context, not U.S.-specific and not independently verified. Example entries below are illustrative, not the full dataset — see the source link for the searchable database of all 2,707 agencies."
+}
