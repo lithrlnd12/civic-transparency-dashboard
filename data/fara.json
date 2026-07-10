@@ -1,0 +1,36 @@
+{
+  "module": "fara",
+  "as_of": "2026-07-10T18:52:48Z",
+  "provenance": "official",
+  "provenance_label": "Official U.S. Department of Justice disclosure data",
+  "source_name": "FARA.gov API / Bulk Data Repository (efile.fara.gov)",
+  "source_url": "https://efile.fara.gov/ords/fara/f?p=API:BULKDATA",
+  "metrics": [
+    { "label": "Active foreign agent registrations", "value": 539 },
+    { "label": "Terminated registrations (all-time)", "value": 6530 }
+  ],
+  "recent_registrations": [
+    { "date": "2026-07-01", "reg_number": "7748", "name": "Bakr Assad Ali", "location": "Baghdad" },
+    { "date": "2026-06-26", "reg_number": "7747", "name": "Ridgeline Advocacy Group LLC", "location": "Washington, DC" },
+    { "date": "2026-06-24", "reg_number": "7745", "name": "Sniper Advertising Services", "location": "Deerfield Beach, FL" },
+    { "date": "2026-06-22", "reg_number": "7744", "name": "Intergenerational Environment Justice Fund Limited", "location": "Perth" },
+    { "date": "2026-06-20", "reg_number": "7742", "name": "Drake Ventures, LLC", "location": "Fort Lauderdale, FL" },
+    { "date": "2026-06-17", "reg_number": "7741", "name": "CRB Global LLC", "location": "Arlington, VA" },
+    { "date": "2026-06-16", "reg_number": "7740", "name": "Mellor, Victor Gilbert", "location": "Warwick, RI" },
+    { "date": "2026-06-16", "reg_number": "7739", "name": "RP&B Consulting", "location": "Washington, DC" },
+    { "date": "2026-06-15", "reg_number": "7737", "name": "John Gilliland PLLC", "location": "Washington, DC" },
+    { "date": "2026-06-08", "reg_number": "7736", "name": "London Global Strategies", "location": "Delray Beach, FL" }
+  ],
+  "recent_terminations": [
+    { "date": "2026-05-28", "reg_number": "7053", "name": "Harris, Waheeda", "location": "Toronto" },
+    { "date": "2026-05-05", "reg_number": "7302", "name": "MEDSecurean, LLC", "location": "Great Falls, VA" },
+    { "date": "2026-05-05", "reg_number": "6614", "name": "National Salvation Front (NAS) Mission USA", "location": "Minneapolis, MN" },
+    { "date": "2026-05-01", "reg_number": "7600", "name": "Tactic COC LLC", "location": "Miami, FL" },
+    { "date": "2026-04-30", "reg_number": "7568", "name": "Williams & Jensen, PLLC", "location": "Washington, DC" },
+    { "date": "2026-04-23", "reg_number": "7356", "name": "Qureshi, Muhammad Safdar", "location": "Valley Stream, NY" },
+    { "date": "2026-04-23", "reg_number": "7194", "name": "35 Nord", "location": "Paris" },
+    { "date": "2026-03-20", "reg_number": "7678", "name": "Arsenal Government and Public Affairs Group", "location": "Arlington, VA" },
+    { "date": "2026-03-12", "reg_number": "5198", "name": "Pillsbury Winthrop Shaw Pittman, LLP", "location": "San Francisco, CA" },
+    { "date": "2026-03-02", "reg_number": "6996", "name": "CITGO Petroleum Corporation (CPC)", "location": "Houston, TX" }
+  ]
+}
