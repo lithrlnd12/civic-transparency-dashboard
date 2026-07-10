@@ -1,0 +1,18 @@
+{
+  "module": "lda",
+  "as_of": "2026-07-10T18:52:48Z",
+  "provenance": "official",
+  "provenance_label": "Official U.S. Senate Office of Public Records disclosure data",
+  "source_name": "Lobbying Disclosure Act (LDA) database, lda.senate.gov",
+  "source_url": "https://lda.senate.gov/system/public/",
+  "metrics": [
+    { "label": "Total LDA filings, 2026 (year to date)", "value": 31841 },
+    { "label": "New lobbying registrations, 2026 (year to date)", "value": 3012 },
+    { "label": "Total LDA filings, full year 2025", "value": 108812 }
+  ],
+  "recent_filings": [
+    { "date": "2026-01-01", "type": "Registration", "registrant": "NEXXUS CONSULTING, LLC", "client": "CITY OF SOMERTON (AZ)", "issue": "Budget/Appropriations" },
+    { "date": "2025-01-01", "type": "Registration", "registrant": "COVENANT GOVERNMENT AFFAIRS, LLC", "client": "FUSE INTEGRATION, INC.", "issue": "Defense" }
+  ],
+  "note": "Headline counts pulled directly from the official LDA API (lda.senate.gov/api/v1/filings). Per-quarter breakdowns (reports vs. registrations vs. terminations) will be expanded in a future update."
+}

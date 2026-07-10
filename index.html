@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Civic Transparency Dashboard</title>
+<meta name="description" content="Where money and monitoring are — sourced from primary government disclosures, explained in plain language.">
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#12151c; --panel-2:#181c25; --border:#242a36; --border-soft:#1c212b;
+    --text:#eef0f3; --text-dim:#9aa3b2; --text-faint:#6b7386;
+    --accent:#5b9dff;
+    --fara:#5b9dff; --lda:#7fd4a3; --fec:#e0a94e; --alpr:#c979d6;
+    --official:#3ea66b; --official-bg:rgba(62,166,107,0.12);
+    --crowd:#c99a3b; --crowd-bg:rgba(201,154,59,0.12);
+    --radius:14px; --radius-sm:9px;
+    --maxw:1040px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(91,157,255,0.08), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(127,212,163,0.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  a{ color:var(--accent); }
+  ::selection{ background:rgba(91,157,255,0.35); }
+
+  /* ---- NAV ---- */
+  .navbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,13,18,0.82); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .navbar-inner{
+    max-width:var(--maxw); margin:0 auto; padding:12px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .brand{ display:flex; align-items:center; gap:9px; font-weight:700; font-size:0.98rem; color:var(--text); text-decoration:none; }
+  .brand-mark{
+    width:26px; height:26px; border-radius:7px; flex:none;
+    background:conic-gradient(from 180deg, var(--fara), var(--lda), var(--fec), var(--alpr), var(--fara));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .navlinks{ display:flex; gap:4px; align-items:center; }
+  .navlinks a{
+    color:var(--text-dim); text-decoration:none; font-size:0.85rem; font-weight:500;
+    padding:7px 12px; border-radius:999px; transition:background 0.15s, color 0.15s;
+    white-space:nowrap;
+  }
+  .navlinks a:hover{ background:var(--panel-2); color:var(--text); }
+  .nav-toggle{ display:none; background:none; border:1px solid var(--border); color:var(--text); border-radius:8px; padding:6px 10px; font-size:1rem; cursor:pointer; }
+  @media (max-width:720px){
+    .navlinks{
+      position:absolute; top:100%; left:0; right:0; flex-direction:column; align-items:stretch;
+      background:var(--panel); border-bottom:1px solid var(--border); padding:8px; gap:2px;
+      display:none;
+    }
+    .navlinks.open{ display:flex; }
+    .navlinks a{ padding:10px 14px; border-radius:8px; }
+    .nav-toggle{ display:block; }
+  }
+
+  /* ---- HERO ---- */
+  header.hero{ max-width:var(--maxw); margin:0 auto; padding:40px 20px 8px; }
+  header.hero h1{ font-size:2rem; margin:0 0 8px; letter-spacing:-0.02em; }
+  header.hero p.tagline{ color:var(--text-dim); margin:0 0 20px; font-size:1.02rem; max-width:640px; }
+  .banner{
+    background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px 18px; font-size:0.87rem; color:var(--text-dim); display:flex; gap:10px; align-items:flex-start;
+  }
+  .banner .icon{ flex:none; font-size:1.1rem; line-height:1.3; }
+  .banner strong{ color:var(--text); }
+
+  /* ---- SNAPSHOT STRIP ---- */
+  .snapshot{
+    max-width:var(--maxw); margin:22px auto 0; padding:0 20px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px;
+  }
+  @media (max-width:820px){ .snapshot{ grid-template-columns:repeat(2,1fr); } }
+  .snap-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:14px 16px; text-decoration:none; color:inherit; display:block;
+    border-top:3px solid var(--c, var(--accent));
+    transition:transform 0.15s, border-color 0.15s;
+  }
+  .snap-card:hover{ transform:translateY(-2px); }
+  .snap-card .snap-label{ font-size:0.72rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px; }
+  .snap-card .snap-value{ font-size:1.4rem; font-weight:700; }
+  .snap-card .snap-sub{ font-size:0.74rem; color:var(--text-dim); margin-top:2px; }
+
+  main{ max-width:var(--maxw); margin:0 auto; padding:10px 20px 60px; }
+
+  /* ---- MODULE ---- */
+  .module{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    margin:26px 0; overflow:hidden; scroll-margin-top:78px;
+    border-left:3px solid var(--c, var(--accent));
+  }
+  .module-head{ padding:22px 24px 16px; border-bottom:1px solid var(--border-soft); }
+  .module-title-row{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  .module-title{ display:flex; align-items:center; gap:10px; font-size:1.2rem; font-weight:700; margin:0; }
+  .module-icon{
+    width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    background:color-mix(in srgb, var(--c, var(--accent)) 18%, transparent); font-size:1.05rem; flex:none;
+  }
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:0.7rem; font-weight:700;
+    padding:5px 11px; border-radius:999px; letter-spacing:0.03em; text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .badge.official{ background:var(--official-bg); color:var(--official); border:1px solid rgba(62,166,107,0.35); }
+  .badge.crowd{ background:var(--crowd-bg); color:var(--crowd); border:1px solid rgba(201,154,59,0.35); }
+  .badge.research{ background:rgba(201,121,214,0.12); color:var(--alpr); border:1px solid rgba(201,121,214,0.35); }
+  .badge.pending{ background:rgba(154,161,172,0.1); color:var(--text-faint); border:1px solid var(--border); }
+  .explainer{ color:var(--text-dim); font-size:0.93rem; margin-top:12px; }
+  .explainer p{ margin:7px 0; }
+  .explainer strong{ color:var(--text); font-weight:600; }
+  .meta-row{ display:flex; flex-wrap:wrap; gap:8px 16px; font-size:0.79rem; color:var(--text-faint); margin-top:14px; align-items:center; }
+  .meta-row a{ color:var(--accent); text-decoration:none; font-weight:500; }
+  .meta-row a:hover{ text-decoration:underline; }
+  .dot-sep{ width:3px; height:3px; border-radius:50%; background:var(--text-faint); display:inline-block; }
+  .module-body{ padding:20px 24px 24px; }
+
+  .metrics{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-bottom:20px; }
+  .metric-card{
+    background:var(--panel-2); border:1px solid var(--border); border-radius:10px; padding:14px 16px;
+  }
+  .metric-value{ font-size:1.55rem; font-weight:700; letter-spacing:-0.01em; }
+  .metric-label{ font-size:0.78rem; color:var(--text-dim); margin-top:3px; }
+
+  .viz-row{ display:flex; gap:20px; align-items:center; margin:6px 0 22px; flex-wrap:wrap; }
+  .viz-legend{ display:flex; flex-direction:column; gap:8px; font-size:0.83rem; }
+  .viz-legend .li{ display:flex; align-items:center; gap:8px; }
+  .swatch{ width:10px; height:10px; border-radius:3px; flex:none; }
+
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th,td{ text-align:left; padding:9px 12px; border-bottom:1px solid var(--border-soft); }
+  th{ color:var(--text-faint); font-weight:600; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; position:sticky; top:0; background:var(--panel); }
+  tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--panel-2); }
+  .table-wrap{ overflow-x:auto; border:1px solid var(--border-soft); border-radius:10px; }
+  .table-wrap table{ min-width:480px; }
+  .subhead{ font-size:0.82rem; font-weight:700; margin:20px 0 8px; color:var(--text); display:flex; align-items:center; gap:8px; }
+  .subhead .line{ flex:1; height:1px; background:var(--border-soft); }
+  .placeholder{ color:var(--text-dim); font-size:0.88rem; padding:10px 0; }
+  .note-box{
+    margin-top:16px; font-size:0.82rem; color:var(--text-dim); background:var(--panel-2);
+    border:1px dashed var(--border); border-radius:10px; padding:12px 14px;
+  }
+
+  footer{
+    max-width:var(--maxw); margin:0 auto; padding:26px 20px 60px; color:var(--text-faint); font-size:0.8rem;
+    border-top:1px solid var(--border-soft);
+  }
+  footer a{ color:var(--accent); }
+  footer p{ margin:8px 0; }
+  .loading{ color:var(--text-dim); font-size:0.87rem; display:flex; align-items:center; gap:8px; }
+  .spinner{
+    width:14px; height:14px; border-radius:50%; border:2px solid var(--border);
+    border-top-color:var(--accent); animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  @media (max-width:600px){
+    header.hero h1{ font-size:1.5rem; }
+    .metric-value{ font-size:1.25rem; }
+    .module-title{ font-size:1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="#top" class="brand"><span class="brand-mark"></span> Civic Transparency Dashboard</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+    <div class="navlinks" id="navLinks">
+      <a href="#fara">Foreign Lobbying</a>
+      <a href="#lda">Domestic Lobbying</a>
+      <a href="#fec">Campaign Finance</a>
+      <a href="#alpr">ALPR Cameras</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <h1>Where money and monitoring are.</h1>
+  <p class="tagline">A neutral reference tool tracking foreign and domestic lobbying, campaign finance, and surveillance camera expansion — sourced from primary government disclosures and clearly-labeled data, explained in plain language.</p>
+  <div class="banner">
+    <span class="icon">ⓘ</span>
+    <span><strong>This is not advocacy.</strong> Every number here links back to its original source so you can verify it yourself. No commentary, no framing toward a conclusion — just what's publicly disclosed and how to read it.</span>
+  </div>
+</header>
+
+<div class="snapshot" id="snapshot">
+  <a href="#fara" class="snap-card" style="--c:var(--fara)">
+    <div class="snap-label">Foreign Lobbying</div>
+    <div class="snap-value" id="snap-fara">—</div>
+    <div class="snap-sub">active FARA registrations</div>
+  </a>
+  <a href="#lda" class="snap-card" style="--c:var(--lda)">
+    <div class="snap-label">Domestic Lobbying</div>
+    <div class="snap-value" id="snap-lda">—</div>
+    <div class="snap-sub">LDA filings, 2026 YTD</div>
+  </a>
+  <a href="#fec" class="snap-card" style="--c:var(--fec)">
+    <div class="snap-label">Campaign Finance</div>
+    <div class="snap-value" id="snap-fec">—</div>
+    <div class="snap-sub">committees, 2026 cycle</div>
+  </a>
+  <a href="#alpr" class="snap-card" style="--c:var(--alpr)">
+    <div class="snap-label">ALPR Cameras</div>
+    <div class="snap-value" id="snap-alpr">—</div>
+    <div class="snap-sub">U.S. agencies documented (Flock)</div>
+  </a>
+</div>
+
+<main>
+
+  <!-- FARA MODULE -->
+  <section class="module" id="fara" style="--c:var(--fara)">
+    <div class="module-head">
+      <div class="module-title-row">
+        <h2 class="module-title"><span class="module-icon">🌐</span> Foreign Lobbying Disclosure (FARA)</h2>
+        <span class="badge official">Official government data</span>
+      </div>
+      <div class="explainer">
+        <p><strong>What this is:</strong> Under the Foreign Agents Registration Act (1938), anyone in the U.S. representing a foreign government, political party, or foreign-controlled entity for political or public-relations purposes must register with the Department of Justice and disclose who they represent.</p>
+        <p><strong>Why it matters:</strong> This is the primary public record of who is being paid to influence U.S. policy, media, or public opinion on behalf of a foreign interest.</p>
+        <p><strong>How to read it:</strong> "Active" means the registration is currently in effect. "Terminated" means the agent formally ended the relationship or stopped required activity — it does not by itself imply wrongdoing.</p>
+      </div>
+      <div class="meta-row">
+        <span>Last updated: <strong id="fara-updated">loading…</strong></span>
+        <span class="dot-sep"></span>
+        <a href="https://efile.fara.gov/ords/fara/f?p=API:BULKDATA" target="_blank" rel="noopener">View primary source (fara.gov) →</a>
+      </div>
+    </div>
+    <div class="module-body" id="fara-body">
+      <div class="loading"><span class="spinner"></span> Loading FARA data…</div>
+    </div>
+  </section>
+
+  <!-- LDA MODULE -->
+  <section class="module" id="lda" style="--c:var(--lda)">
+    <div class="module-head">
+      <div class="module-title-row">
+        <h2 class="module-title"><span class="module-icon">🏛️</span> Domestic Lobbying Disclosure (LDA)</h2>
+      
